@@ -1,5 +1,5 @@
 import { Color } from "three"
-import { ProgressiveShadows } from "./ProgressiveShadows"
+import { ProgressiveShadows } from "progressive-shadows/src/ProgressiveShadows.js"
 
 /**
  * Pass Lil or Dat gui to create control folder
@@ -37,7 +37,7 @@ export function guiProgressiveShadows(ps, gui) {
   folder.add(ps, "recalculate")
   folder.add(ps, "clear")
   folder.add(custom, "save").name("Save Shadow Image")
-  folder.add(ps, "progress", 0, 100, 1).listen().disable()
+  folder.add(ps, "progress", 0, 100, 1).listen()//.disable()
 }
 
 let canvas

@@ -120,16 +120,16 @@ class ProgressiveShadows {
     this.targetMat.onBeforeCompile = (shader) => {
       // Vertex Shader: Set Vertex Positions to the Unwrapped UV Positions
       shader.vertexShader =
-        "varying vec2 vUv;\n" + shader.vertexShader.slice(0, -1) + "vUv = uv; gl_Position = vec4((uv - 0.5) * 2.0, 1.0, 1.0); }"
+        "varying vec2 vUvPS;\n" + shader.vertexShader.slice(0, -1) + "vUvPS = uv; gl_Position = vec4((uv - 0.5) * 2.0, 1.0, 1.0); }"
 
       // Fragment Shader: Set Pixels to average in the Previous frame's Shadows
       const bodyStart = shader.fragmentShader.indexOf("void main() {")
       shader.fragmentShader =
-        "varying vec2 vUv;\n" +
+        "varying vec2 vUvPS;\n" +
         shader.fragmentShader.slice(0, bodyStart) +
         "uniform sampler2D previousShadowMap;\n	uniform float averagingWindow;\n" +
         shader.fragmentShader.slice(bodyStart - 1, -1) +
-        `\nvec3 texelOld = texture2D(previousShadowMap, vUv).rgb;
+        `\nvec3 texelOld = texture2D(previousShadowMap, vUvPS).rgb;
         gl_FragColor.rgb = mix(texelOld, gl_FragColor.rgb, 1.0/ averagingWindow);
       }`
 
@@ -385,19 +385,19 @@ const SoftShadowMaterial = shaderMaterial(
     toneMapped: false,
     blend: 2.0,
   },
-  `varying vec2 vUv;
+  `varying vec2 vUvPS;
    void main() {
      gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.);
-     vUv = uv;
+     vUvPS = uv;
    }`,
-  `varying vec2 vUv;
+  `varying vec2 vUvPS;
    uniform sampler2D map;
    uniform vec3 color;
    uniform float opacity;
    uniform float alphaTest;
    uniform float blend;
    void main() {
-     vec4 sampledDiffuseColor = texture2D(map, vUv);
+     vec4 sampledDiffuseColor = texture2D(map, vUvPS);
      gl_FragColor = vec4(color * sampledDiffuseColor.r * blend, max(0.0, (1.0 - (sampledDiffuseColor.r + sampledDiffuseColor.g + sampledDiffuseColor.b) / alphaTest)) * opacity);
      #include <tonemapping_fragment>
      #include <encodings_fragment>
